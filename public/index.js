@@ -1,13 +1,44 @@
 let transactions = [];
+//Array of offline transactions to push when back online
+let offlineTransactions = [];
 let myChart;
-let offlineDateTime;
+//Offline DB
+let offlineDB;
 
 //LEEM   Validate that the browser supports indexedDb, if so then instantiate the new browser.
 function initBudgetOffline () {
-    let req = window.indexedDB.open("budgetOffline", 3);
+  //All modern browsers support indexedDB so need to check; however, be sure organization
+  //standards require a browser version that does support indexedDB.
+  offlineDB = window.indexedDB.open("budgetOffline", 3);
 }
 
 initBudgetOffline();
+
+// create the Contacts object store and indexes
+offlineDB.onupgradeneeded = (event) => {
+  let offDB = event.target.result;
+
+  // create the Contacts object store 
+  // with auto-increment id
+  let store = offDB.createObjectStore('budgetOffline', {
+      autoIncrement: true
+  });
+
+  // create an index on the email property
+  let index = store.createIndex('email', 'email', {
+      unique: true
+  });
+};
+
+//If there is an error opening the offline budget DB this onerror will trigger.
+offlineDB.onerror = (event) => {
+  console.error(`Error on opening DB: ${event.target.errorCode}`);
+};
+
+//Upon successful creation of the offline db, this db will trigger.
+offlineDB.onsuccess = (event) => {
+  console.error('Success opening offline DB');
+};
 
 //LEEM:  This initial fetch pulls whats in the db and populates it on the UI
 //       and is first called after index.html renders here: 
@@ -176,14 +207,6 @@ function setTransaction (name, amt, dtStamp) {
 
   return (trxn);
 }
-
-//IndexedDB Success and Error Handlers
-req.onerror = function(event) {
-  // Do something with request.errorCode!
-};
-req.onsuccess = function(event) {
-  // Do something with request.result!
-};
 
 document.querySelector("#add-btn").onclick = function() {
   sendTransaction(true);
