@@ -3,19 +3,14 @@ let transactions = [];
 let offlineTransactions = [];
 let myChart;
 //Offline DB
-//Offline DB
 let offlineDB;
 const request = indexedDB.open("budgetOffline");
 
 request.onupgradeneeded = function() {
   // The database did not previously exist, so create object stores and indexes.
-  const offlineDB = request.result;
+  offlineDB = request.result;
   const store = offlineDB.createObjectStore("transactions", {autoIncrement:true});
 
-  // Populate with initial data.
-  store.put({title: "Quarry Memories", author: "Fred", isbn: 123456});
-  store.put({title: "Water Buffaloes", author: "Fred", isbn: 234567});
-  store.put({title: "Bedrock Nights", author: "Barney", isbn: 345678});
 };
 
 request.onsuccess = function() {
@@ -174,13 +169,12 @@ async function sendTransaction(isAdding) {
       amountEl.value = "";
     });
   } else {
-    //WORK OFFLINE 
-    const tx = offlineDB.transaction("lineItem", "readwrite");
-    const store = tx.objectStore("lineItem");
+    //Here is where we write offline records to indexeddb
+    const trxn = offlineDB.transaction("transactions", "readwrite");
+    const store = trxn.objectStore("transactions");
 
-    // let nextTrxn = setTransaction(nameEl, amountEl, dateTime);
-
-    store.put({title: "Bedrock Nights", author: "Barney", isbn: 345678});
+    let nextTrxn = setTransaction(nameEl.value, amountEl.value, Date.now());
+    store.put(nextTrxn);
   }
 }
 
