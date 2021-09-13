@@ -132,13 +132,7 @@ async function sendTransaction(isAdding) {
   //LEEM:  But first check to see if online or not.
   //       If so, work as normal.
   //       if not, queue up data requests until online.
-  let isOnline;
-  await checkHttp("https://www.google.com/")
-    .then(() => (isOnline = true))
-    .catch(() => (isOnline = false))
-    .finally(() => console.log({ isOnline }));
-
-  if (isOnline)   {
+  if (navigator.onLine) {
     fetch("/api/transaction", {
       method: "POST",
       body: JSON.stringify(transaction),
@@ -148,6 +142,8 @@ async function sendTransaction(isAdding) {
       }
     })
     .then(response => {    
+      //HERE we must write offline records to db and delete them
+      uploadOffline();
       return response.json();
     })
     .then(data => {
@@ -173,7 +169,7 @@ async function sendTransaction(isAdding) {
     const trxn = offlineDB.transaction("transactions", "readwrite");
     const store = trxn.objectStore("transactions");
 
-    let nextTrxn = setTransaction(nameEl.value, amountEl.value, Date.now());
+    let nextTrxn = setTransaction(nameEl.value, amountEl.value, dateTime);
     store.put(nextTrxn);
   }
 }
@@ -197,19 +193,15 @@ document.querySelector("#sub-btn").onclick = function() {
   sendTransaction(false);
 };
 
-function checkHttp(url) {
-  return new Promise((resolve, reject) => {
-    const { protocol } = parse(url);
-    const lib = protocol === "https:" ? require("https") : require("http");
-    const request = lib.get(url, response => {
-      console.log("HTTP Status Code:", response.statusCode);
-      resolve(response);
-    });
-    request.on("error", err => {
-      console.error(
-        `Error trying to connect via ${protocol.replace(":", "").toUpperCase()}`
-      );
-      reject(err);
-    });
-  });
+async function uploadOffline() {
+  const trxn = offlineDB.transaction("transactions", "readwrite");
+  const store = trxn.objectStore("transactions");
+
+  var allRecords = await store.getAll();
+
+  allRecords.onsuccess = function() {
+    console.log(allRecords.result);
+  };
+
+  return (allRecords.result);
 }
