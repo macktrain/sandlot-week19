@@ -3,14 +3,15 @@ let transactions = [];
 let offlineTransactions = [];
 let myChart;
 //Offline DB
-//Offline DB
 let offlineDB;
 const request = indexedDB.open("budgetOffline");
 
 request.onupgradeneeded = function() {
   // The database did not previously exist, so create object stores and indexes.
   const offlineDB = request.result;
-  const store = offlineDB.createObjectStore("transactions", {autoIncrement:true});
+  const store = offlineDB.createObjectStore("books", {keyPath: "isbn"});
+  const titleIndex = store.createIndex("by_title", "title", {unique: true});
+  const authorIndex = store.createIndex("by_author", "author");
 
   // Populate with initial data.
   store.put({title: "Quarry Memories", author: "Fred", isbn: 123456});
@@ -19,7 +20,7 @@ request.onupgradeneeded = function() {
 };
 
 request.onsuccess = function() {
-  offlineDB = request.result;
+  db = request.result;
 };
 
 //LEEM:  This initial fetch pulls whats in the db and populates it on the UI
