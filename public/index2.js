@@ -1,6 +1,7 @@
 let transactions = [];
+//Array of offline transactions to push when back online
+let offlineTransactions = [];
 let myChart;
-
 //Offline DB
 let offlineDB;
 const request = indexedDB.open("budgetOffline");
@@ -19,7 +20,7 @@ request.onsuccess = function() {
 //LEEM:  This initial fetch pulls whats in the db and populates it on the UI
 //       and is first called after index.html renders here: 
 //       "<script src="index.js"></script>"
-fetch("/api/transaction")
+fetch('/api/transaction')
   .then(response => {
     return response.json();
   })
@@ -96,7 +97,7 @@ function populateChart() {
   });
 }
 
-function sendTransaction(isAdding) {
+async function sendTransaction(isAdding) {
   let nameEl = document.querySelector("#t-name");
   let amountEl = document.querySelector("#t-amount");
   let errorEl = document.querySelector(".form .error");
@@ -111,11 +112,8 @@ function sendTransaction(isAdding) {
   }
 
   // create record
-  let transaction = {
-    name: nameEl.value,
-    value: amountEl.value,
-    date: new Date().toISOString()
-  };
+  let dateTime = new Date().toISOString();
+  let transaction = setTransaction(nameEl.value, amountEl.value, dateTime);
 
   // if subtracting funds, convert amount to negative number
   if (!isAdding) {
@@ -131,39 +129,60 @@ function sendTransaction(isAdding) {
   populateTotal();
   
   // also send to server
-  fetch("/api/transaction", {
-    method: "POST",
-    body: JSON.stringify(transaction),
-    headers: {
-      Accept: "application/json, text/plain, */*",
-      "Content-Type": "application/json"
-    }
-  })
-  .then(response => {    
-    //HERE we must write offline records to db and delete them
-    uploadOffline();
-    return response.json();
-  })
-  .then(data => {
-    if (data.errors) {
-      errorEl.textContent = "Missing Information";
-    }
-    else {
+  //LEEM:  But first check to see if online or not.
+  //       If so, work as normal.
+  //       if not, queue up data requests until online.
+  if (navigator.onLine) {
+    fetch("/api/transaction", {
+      method: "POST",
+      body: JSON.stringify(transaction),
+      headers: {
+        Accept: "application/json, text/plain, */*",
+        "Content-Type": "application/json"
+      }
+    })
+    .then(response => {    
+      //HERE we must write offline records to db and delete them
+      uploadOffline();
+      return response.json();
+    })
+    .then(data => {
+      if (data.errors) {
+        errorEl.textContent = "Missing Information";
+      }
+      else {
+        // clear form
+        nameEl.value = "";
+        amountEl.value = "";
+      }
+    })
+    .catch(err => {
+      // fetch failed, so save in indexed db
+      saveRecord(transaction);
+
       // clear form
       nameEl.value = "";
       amountEl.value = "";
-    }
-  })
-  .catch(err => {
-    console.log ('*******************************');
-    console.log ('*************CATCH*************');
-    console.log ('*******************************');
-    saveRecord(transaction);
+    });
+  } else {
+    //Here is where we write offline records to indexeddb
+    const trxn = offlineDB.transaction("transactions", "readwrite");
+    const store = trxn.objectStore("transactions");
 
-    // clear form
-    nameEl.value = "";
-    amountEl.value = "";
-  });
+    let nextTrxn = setTransaction(nameEl.value, amountEl.value, dateTime);
+    store.put(nextTrxn);
+  }
+}
+
+//LEEM:  Will be reusing this so made reusable
+function setTransaction (name, amt, dtStamp) {
+  const trxn = {
+    name: name,
+    value: amt,
+    date: dtStamp
+  };
+
+  return (trxn);
 }
 
 document.querySelector("#add-btn").onclick = function() {
@@ -174,60 +193,15 @@ document.querySelector("#sub-btn").onclick = function() {
   sendTransaction(false);
 };
 
-async function saveRecord (transaction) {
-    // fetch failed, so save in indexed db
-    //Here is where we write offline records to indexeddb
-    console.log ('*******************************');
-    console.log ('***********saveRecord**********');
-    console.log ('*******************************');
-    const trxn = offlineDB.transaction("transactions", "readwrite");
-    const store = trxn.objectStore("transactions");
-
-    await store.put(transaction);
-}
-
 async function uploadOffline() {
   const trxn = offlineDB.transaction("transactions", "readwrite");
   const store = trxn.objectStore("transactions");
 
-  let transactions = await store.getAll();
-  let nextRec;
+  var allRecords = await store.getAll();
 
-  transactions.onsuccess = function() {
-    console.log ('***********TRXNS***************');
-    console.log ('***********TRXNS***************');
-    console.log ('***********TRXNS***************');
-    console.log (transactions.result);
-    console.log (transactions.result.length);
-    console.log ('***********TRXNS***************');
-    console.log ('***********TRXNS***************');
-    console.log ('***********TRXNS***************');
-
-    for (let i = 0; i < transactions.result.length; i++) {
-      // Creates Record to Write
-    console.log ('***********DETAIL***************');
-    console.log ('***********DETAIL***************');
-    console.log ('***********DETAIL***************');
-    console.log ("name  : " + transactions.result[i].name);
-    console.log ("value : " + transactions.result[i].value);
-    console.log ("date  : " + transactions.result[i].date);
-    console.log ('***********DETAIL***************');
-    console.log ('***********DETAIL***************');
-    console.log ('***********DETAIL***************');
-      nextRec = {
-        name: transactions.result[i].name,
-        value: transactions.result[i].value,
-        date: transactions.result[i].date
-      };
-
-      fetch("/api/transaction", {
-        method: "POST",
-        body: JSON.stringify(nextRec),
-        headers: {
-          Accept: "application/json, text/plain, */*",
-          "Content-Type": "application/json"
-        }
-      });
-    }
+  allRecords.onsuccess = function() {
+    console.log(allRecords.result);
   };
+
+  return (allRecords.result);
 }
