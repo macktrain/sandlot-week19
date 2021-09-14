@@ -1,6 +1,7 @@
 let transactions = [];
 let myChart;
 
+//NOTE:  Drop mongo db at command line with:  mongo budget --eval "printjson(db.dropDatabase())"
 //Offline DB
 let offlineDB;
 const request = indexedDB.open("budgetOffline");
@@ -174,16 +175,13 @@ document.querySelector("#sub-btn").onclick = function() {
   sendTransaction(false);
 };
 
-async function saveRecord (transaction) {
+function saveRecord (transaction) {
     // fetch failed, so save in indexed db
     //Here is where we write offline records to indexeddb
-    console.log ('*******************************');
-    console.log ('***********saveRecord**********');
-    console.log ('*******************************');
     const trxn = offlineDB.transaction("transactions", "readwrite");
     const store = trxn.objectStore("transactions");
 
-    await store.put(transaction);
+    store.put(transaction);
 }
 
 async function uploadOffline() {
@@ -194,26 +192,14 @@ async function uploadOffline() {
   let nextRec;
 
   transactions.onsuccess = function() {
-    console.log ('***********TRXNS***************');
-    console.log ('***********TRXNS***************');
-    console.log ('***********TRXNS***************');
     console.log (transactions.result);
     console.log (transactions.result.length);
-    console.log ('***********TRXNS***************');
-    console.log ('***********TRXNS***************');
-    console.log ('***********TRXNS***************');
 
     for (let i = 0; i < transactions.result.length; i++) {
       // Creates Record to Write
-    console.log ('***********DETAIL***************');
-    console.log ('***********DETAIL***************');
-    console.log ('***********DETAIL***************');
     console.log ("name  : " + transactions.result[i].name);
     console.log ("value : " + transactions.result[i].value);
     console.log ("date  : " + transactions.result[i].date);
-    console.log ('***********DETAIL***************');
-    console.log ('***********DETAIL***************');
-    console.log ('***********DETAIL***************');
       nextRec = {
         name: transactions.result[i].name,
         value: transactions.result[i].value,
@@ -228,6 +214,11 @@ async function uploadOffline() {
           "Content-Type": "application/json"
         }
       });
+      console.log ("Added Offline indexedDB Record:")
+      console.log (nextRec);
     }
+    console.log ("Deleted All Offline indexedDB records")
+    const req = store.clear();
+    console.log (req);
   };
 }
