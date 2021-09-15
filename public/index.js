@@ -103,6 +103,11 @@ function sendTransaction(isAdding) {
   let errorEl = document.querySelector(".form .error");
 
   // validate form
+  if (transactions.includes(nameEl.value.trim())) {
+    errorEl.textContent = `The transaction ${nameEl.value} already added.`;
+    return;
+  }
+
   if (nameEl.value === "" || amountEl.value === "") {
     errorEl.textContent = "Missing Information";
     return;
