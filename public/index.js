@@ -103,13 +103,6 @@ function sendTransaction(isAdding) {
   let errorEl = document.querySelector(".form .error");
 
   // validate form
-  for (let i = 0; i < transactions.length; i++){
-    if (transactions[i].name.trim() === nameEl.value.trim()) {
-      errorEl.textContent = `The transaction ${nameEl.value} already added.`;
-      return;
-    }
-  }
-
   if (nameEl.value === "" || amountEl.value === "") {
     errorEl.textContent = "Missing Information";
     return;
@@ -130,9 +123,6 @@ function sendTransaction(isAdding) {
     transaction.value *= -1;
   }
 
-  // add to beginning of current array of data
-  transactions.unshift(transaction);
-
   // re-run logic to populate ui with new record
   populateChart();
   populateTable();
@@ -149,6 +139,8 @@ function sendTransaction(isAdding) {
   })
   .then(response => {    
     //HERE we must write offline records to db and delete them
+    // add to beginning of current array of data
+    transactions.unshift(transaction);
     uploadOffline();
     return response.json();
   })
@@ -223,6 +215,8 @@ async function uploadOffline() {
       });
       console.log ("Added Offline indexedDB Record:")
       console.log (nextRec);
+      // add to beginning of current array of data
+      transactions.unshift(nextRec);
     }
     console.log ("Deleted All Offline indexedDB records")
     const req = store.clear();
