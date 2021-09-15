@@ -124,7 +124,9 @@ function sendTransaction(isAdding) {
   }
 
   // add to beginning of current array of data
+  console.log ('***************unshift**************');
   transactions.unshift(transaction);
+  console.log (transactions);
   
   // also send to server
   fetch("/api/transaction", {
@@ -154,13 +156,15 @@ function sendTransaction(isAdding) {
     console.log ('*******************************');
     console.log ('*************CATCH*************');
     console.log ('*******************************');
+    transactions.shift();
+    console.log (transactions);
     saveRecord(transaction);
 
     // clear form
     nameEl.value = "";
     amountEl.value = "";
   });
-  
+
   // re-run logic to populate ui with new record
   populateChart();
   populateTable();
@@ -182,7 +186,6 @@ function saveRecord (transaction) {
     const store = trxn.objectStore("transactions");
 
     store.put(transaction);
-    transactions.shift();
 }
 
 async function uploadOffline() {
