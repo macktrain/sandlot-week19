@@ -15,8 +15,14 @@ app.use(express.json());
 
 app.use(express.static("public"));
 
+/* LEEM */
+/************************ CONNECTION TO MONGODB ***************************/
+const uri = process.env.MONGODB_URI ? 
+            process.env.MONGODB_URI :
+            "mongodb://localhost/budget"
+/************************ CONNECTION TO MONGODB ***************************/
 //LEEM:  Here is the database name
-mongoose.connect("mongodb://localhost/budget", {
+mongoose.connect(uri, {
   useNewUrlParser: true,
   useFindAndModify: false
 });
