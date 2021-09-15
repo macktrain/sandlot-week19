@@ -123,6 +123,9 @@ function sendTransaction(isAdding) {
     transaction.value *= -1;
   }
 
+  // add to beginning of current array of data
+  transactions.unshift(transaction);
+
   // re-run logic to populate ui with new record
   populateChart();
   populateTable();
@@ -139,8 +142,6 @@ function sendTransaction(isAdding) {
   })
   .then(response => {    
     //HERE we must write offline records to db and delete them
-    // add to beginning of current array of data
-    transactions.unshift(transaction);
     uploadOffline();
     return response.json();
   })
@@ -181,6 +182,7 @@ function saveRecord (transaction) {
     const store = trxn.objectStore("transactions");
 
     store.put(transaction);
+    transactions.shift();
 }
 
 async function uploadOffline() {
@@ -215,8 +217,6 @@ async function uploadOffline() {
       });
       console.log ("Added Offline indexedDB Record:")
       console.log (nextRec);
-      // add to beginning of current array of data
-      transactions.unshift(nextRec);
     }
     console.log ("Deleted All Offline indexedDB records")
     const req = store.clear();
