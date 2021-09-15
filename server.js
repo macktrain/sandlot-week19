@@ -15,17 +15,24 @@ app.use(express.json());
 
 app.use(express.static("public"));
 
-/* LEEM */
-/************************ CONNECTION TO MONGODB ***************************/
-const uri = process.env.MONGODB_URI ? 
-            process.env.MONGODB_URI :
-            "mongodb://localhost/budget"
-/************************ CONNECTION TO MONGODB ***************************/
 //LEEM:  Here is the database name
-mongoose.connect(uri, {
-  useNewUrlParser: true,
-  useFindAndModify: false
-});
+// mongoose.connect("mongodb://localhost/budget", {
+//   useNewUrlParser: true,
+//   useFindAndModify: false
+// });
+const username = "dbuser";
+const password = "p4ssw0rd";
+const cluster = "leebudgetapp.lb4kq";
+const dbname = "leebudgetapp";
+
+mongoose.connect(
+  `mongodb+srv://${username}:${password}@${cluster}.mongodb.net/${dbname}?retryWrites=true&w=majority`, 
+  {
+    useNewUrlParser: true,
+    useFindAndModify: false,
+    useUnifiedTopology: true
+  }
+);
 
 // routes
 app.use(require("./routes/api.js"));
