@@ -201,7 +201,7 @@ async function uploadOffline() {transactions
   let localTransaction = await store.getAll();
   let nextRec;
 
-  transalocalTransactionctions.onsuccess = function() {
+  localTransaction.onsuccess = function() {
     console.log (localTransaction.result);
     console.log (localTransaction.result.length);
 
