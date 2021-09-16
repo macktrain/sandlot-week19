@@ -97,7 +97,7 @@ function populateChart() {
   });
 }
 
-async function sendTransaction(isAdding) {
+function sendTransaction(isAdding) {
   let nameEl = document.querySelector("#t-name");
   let amountEl = document.querySelector("#t-amount");
   let errorEl = document.querySelector(".form .error");
@@ -129,7 +129,7 @@ async function sendTransaction(isAdding) {
   console.log (transactions);
   
   // also send to server
-  await fetch("/api/transaction", {
+  fetch("/api/transaction", {
     method: "POST",
     body: JSON.stringify(transaction),
     headers: {
@@ -140,9 +140,6 @@ async function sendTransaction(isAdding) {
   .then(response => {    
     //HERE we must write offline records to db and delete them
     uploadOffline();
-    populateTotal();
-    populateTable();
-    populateChart();
     return response.json();
   })
   .then(data => {
@@ -158,9 +155,7 @@ async function sendTransaction(isAdding) {
   .catch(err => {
     transactions.shift();
     saveRecord(transaction);
-    populateTotal();
-    populateTable();
-    populateChart();
+
     // clear form
     nameEl.value = "";
     amountEl.value = "";
