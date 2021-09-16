@@ -173,7 +173,7 @@ function sendTransaction(isAdding) {
     nameEl.value = "";
     amountEl.value = "";
   });
-
+  window.location.reload;
 }
 
 document.querySelector("#add-btn").onclick = function() {
