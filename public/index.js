@@ -194,26 +194,26 @@ function saveRecord (transaction) {
     store.put(transaction);
 }
 
-async function uploadOffline() {
+async function uploadOffline() {transactions
   const trxn = offlineDB.transaction("transactions", "readwrite");
   const store = trxn.objectStore("transactions");
 
-  let transactions = await store.getAll();
+  let localTransaction = await store.getAll();
   let nextRec;
 
-  transactions.onsuccess = function() {
-    console.log (transactions.result);
-    console.log (transactions.result.length);
+  transalocalTransactionctions.onsuccess = function() {
+    console.log (localTransaction.result);
+    console.log (localTransaction.result.length);
 
-    for (let i = 0; i < transactions.result.length; i++) {
+    for (let i = 0; i < localTransaction.result.length; i++) {
       // Creates Record to Write
-    console.log ("name  : " + transactions.result[i].name);
-    console.log ("value : " + transactions.result[i].value);
-    console.log ("date  : " + transactions.result[i].date);
+    console.log ("name  : " + localTransaction.result[i].name);
+    console.log ("value : " + localTransaction.result[i].value);
+    console.log ("date  : " + localTransaction.result[i].date);
       nextRec = {
-        name: transactions.result[i].name,
-        value: transactions.result[i].value,
-        date: transactions.result[i].date
+        name: localTransaction.result[i].name,
+        value: localTransaction.result[i].value,
+        date: localTransaction.result[i].date
       };
 
       fetch("/api/transaction", {
