@@ -26,7 +26,6 @@ fetch("/api/transaction")
   })
   .then(data => {
     // save db data on global variable
-    uploadOffline();
     transactions = data;
 
     populateTotal();
@@ -124,6 +123,10 @@ function sendTransaction(isAdding) {
     transaction.value *= -1;
   }
 
+  // add to beginning of current array of data
+  console.log ('***************unshift**************');
+  transactions.unshift(transaction);
+  console.log (transactions);
   
   // also send to server
   fetch("/api/transaction", {
@@ -135,10 +138,6 @@ function sendTransaction(isAdding) {
     }
   })
   .then(response => {    
-    // add to beginning of current array of data
-    console.log ('***************unshift**************');
-    transactions.unshift(transaction);
-    console.log (transactions);
     //HERE we must write offline records to db and delete them
     uploadOffline();
     return response.json();
@@ -157,6 +156,8 @@ function sendTransaction(isAdding) {
     console.log ('*******************************');
     console.log ('*************CATCH*************');
     console.log ('*******************************');
+    transactions.shift();
+    console.log (transactions);
     console.log ('***********TRANSACTION**********');
     console.log (transaction);
     console.log ('***********TRANSACTION**********');
