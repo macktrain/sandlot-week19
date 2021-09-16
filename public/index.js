@@ -139,7 +139,10 @@ async function sendTransaction(isAdding) {
   })
   .then(response => {    
     //HERE we must write offline records to db and delete them
-    uploadOffline();
+    await uploadOffline();
+    populateTotal();
+    populateTable();
+    populateChart();
     return response.json();
   })
   .then(data => {
@@ -153,19 +156,11 @@ async function sendTransaction(isAdding) {
     }
   })
   .catch(err => {
-    console.log ('*******************************');
-    console.log ('*************CATCH*************');
-    console.log ('*******************************');
     transactions.shift();
-    console.log (transactions);
-    console.log ('***********TRANSACTION**********');
-    console.log (transaction);
-    console.log ('***********TRANSACTION**********');
+    saveRecord(transaction);
     populateTotal();
     populateTable();
     populateChart();
-    saveRecord(transaction);
-
     // clear form
     nameEl.value = "";
     amountEl.value = "";
