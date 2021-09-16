@@ -97,7 +97,7 @@ function populateChart() {
   });
 }
 
-function sendTransaction(isAdding) {
+async function sendTransaction(isAdding) {
   let nameEl = document.querySelector("#t-name");
   let amountEl = document.querySelector("#t-amount");
   let errorEl = document.querySelector(".form .error");
@@ -129,7 +129,7 @@ function sendTransaction(isAdding) {
   console.log (transactions);
   
   // also send to server
-  fetch("/api/transaction", {
+  await fetch("/api/transaction", {
     method: "POST",
     body: JSON.stringify(transaction),
     headers: {
