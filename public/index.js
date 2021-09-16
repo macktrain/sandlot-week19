@@ -173,7 +173,10 @@ function sendTransaction(isAdding) {
     nameEl.value = "";
     amountEl.value = "";
   });
-  window.location.reload;
+  
+  populateChart();
+  populateTable();
+  populateTotal();
 }
 
 document.querySelector("#add-btn").onclick = function() {
