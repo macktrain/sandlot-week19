@@ -139,7 +139,7 @@ async function sendTransaction(isAdding) {
   })
   .then(response => {    
     //HERE we must write offline records to db and delete them
-    await uploadOffline();
+    uploadOffline();
     populateTotal();
     populateTable();
     populateChart();
