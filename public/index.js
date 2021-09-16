@@ -226,6 +226,7 @@ async function uploadOffline() {
       });
       console.log ("Added Offline indexedDB Record:")
       console.log (nextRec);
+      transactions.unshift(nextRec);
     }
     console.log ("Deleted All Offline indexedDB records")
     const req = store.clear();
