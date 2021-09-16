@@ -161,6 +161,9 @@ function sendTransaction(isAdding) {
     console.log ('***********TRANSACTION**********');
     console.log (transaction);
     console.log ('***********TRANSACTION**********');
+    populateTotal();
+    populateTable();
+    populateChart();
     saveRecord(transaction);
 
     // clear form
