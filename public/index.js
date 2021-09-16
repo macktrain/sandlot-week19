@@ -216,7 +216,7 @@ async function uploadOffline() {
         date: transactions.result[i].date
       };
 
-      await fetch("/api/transaction", {
+      fetch("/api/transaction", {
         method: "POST",
         body: JSON.stringify(nextRec),
         headers: {
