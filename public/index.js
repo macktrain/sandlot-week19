@@ -145,10 +145,6 @@ function sendTransaction(isAdding) {
   .then(response => {    
     //HERE we must write offline records to db and delete them
     uploadOffline();
-    // re-run logic to populate ui with new record
-    populateChart();
-    populateTable();
-    populateTotal();
     return response.json();
   })
   .then(data => {
@@ -165,15 +161,12 @@ function sendTransaction(isAdding) {
     transactions.shift();
     saveRecord(transaction);
     // re-run logic to populate ui with new record
-    populateChart();
-    populateTable();
-    populateTotal();
 
     // clear form
     nameEl.value = "";
     amountEl.value = "";
   });
-  
+  // re-run logic to populate ui with new record
   populateChart();
   populateTable();
   populateTotal();
@@ -233,5 +226,10 @@ async function uploadOffline() {transactions
     console.log ("Deleted All Offline indexedDB records")
     const req = store.clear();
     console.log (req);
+    
+    // re-run logic to populate ui with new record
+    populateChart();
+    populateTable();
+    populateTotal();
   };
 }
