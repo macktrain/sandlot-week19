@@ -166,10 +166,6 @@ function sendTransaction(isAdding) {
     nameEl.value = "";
     amountEl.value = "";
   });
-  // re-run logic to populate ui with new record
-  populateChart();
-  populateTable();
-  populateTotal();
 }
 
 document.querySelector("#add-btn").onclick = function() {
